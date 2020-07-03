@@ -1,0 +1,2 @@
+# toy_tfx_container
+tfxのcontainer_opを使ってxgboostを訓練できるかどうかの検証スクリプト

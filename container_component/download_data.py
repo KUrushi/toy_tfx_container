@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from urllib.request import urlretrieve
 from pathlib import Path
@@ -10,15 +11,13 @@ URL = 'https://raw.githubusercontent.com/tensorflow/tfx/master/tfx/examples/chic
 
 def main(uri):
     data_path = Path(uri)
-    parent = data_path.parent
-    if not parent.exists():
-        parent.mkdir()
-
     urlretrieve(URL, data_path.as_posix())
+    print("データの書き込み場所: {}".format(data_path))
+
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--uri',  required=True)
-    args, _ = parser.parse_args()
+    args = parser.parse_args()
     main(args.uri)

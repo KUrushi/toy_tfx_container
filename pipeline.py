@@ -8,20 +8,24 @@ from tfx.dsl.component.experimental import placeholders
 from tfx.types import standard_artifacts
 
 data_path = Path(__file__).parent / "data" / "data.csv"
+
 # TODO コンテナの中に該当するスクリプトがないのでエラーになる
 download_data_component = container_component.create_container_component(
     name='DownloadData',
     outputs={
-        'data_uri': standard_artifacts.ExternalArtifact
+        'data': standard_artifacts.ExternalArtifact
     },
-    image='google/cloud-sdk:278.0.0',
+    image='toy_tfx_op',
     command=[
         "sh", "-exc",
         """
         data_uri="$0"
+        output_data_path=$(mktemp)
+        echo "$data_uri"
         python container_component/download_data.py  --uri "$data_uri" 
+        # gsutil cp "$data_uri" "$output_data_uri"
         """,
-        placeholders.OutputUriPlaceholder("data_uri")
+        placeholders.OutputUriPlaceholder("data")
     ]
 
 )
@@ -48,14 +52,14 @@ xgb_component = container_component.create_container_component(
 
 def create_pipeline():
     download_data = download_data_component()
-    example = CsvExampleGen(external_input(download_data.outputs['data_uri']))
+    example = CsvExampleGen(download_data.outputs['data'])
     xgb = xgb_component(
         data=example.outputs['examples']
     )
 
     component_instances = [
         download_data,
-        # example,
+        example,
         # xgb
     ]
     return component_instances

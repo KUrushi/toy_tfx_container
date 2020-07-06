@@ -1,3 +1,5 @@
+import argparse
+
 from urllib.request import urlretrieve
 from pathlib import Path
 
@@ -6,14 +8,17 @@ FILENAME = 'data.csv'
 URL = 'https://raw.githubusercontent.com/tensorflow/tfx/master/tfx/examples/chicago_taxi_pipeline/data/simple/data.csv'
 
 
-def main():
-    data_path = Path(__file__) / DATA_DIR
-    filename = data_path / FILENAME
-    if not data_path.exists():
-        data_path.mkdir()
+def main(uri):
+    data_path = Path(uri)
+    parent = data_path.parent
+    if not parent.exists():
+        parent.mkdir()
 
-    urlretrieve(URL, filename)
+    urlretrieve(URL, data_path.as_posix())
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-u', '--uri',  required=True)
+    args, _ = parser.parse_args()
+    main(args.uri)
